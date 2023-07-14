@@ -12,7 +12,8 @@ const getBase64 = (file: RcFile): Promise<string> =>
         reader.onerror = (error) => reject(error);
     });
 
-export const ImageUpload: React.FC = () => {
+export const ImageUpload: React.FC<{ setUrl: (url: string) => void }> = (props) => {
+    const { setUrl } = props
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
     const [previewTitle, setPreviewTitle] = useState('');
@@ -31,6 +32,8 @@ export const ImageUpload: React.FC = () => {
     };
 
     const handleChange: UploadProps['onChange'] = ({ fileList: newFileList }) => {
+        console.log(newFileList)
+        setUrl(newFileList[0]?.response?.url)
         setFileList(newFileList);
     }
 
@@ -42,45 +45,23 @@ export const ImageUpload: React.FC = () => {
     );
     return (
         <>
-            <Upload
-                customRequest={(req) => {
-
-                    (async () => {
-                        const response = await fetch("https://wmiagzc77tdg4q3isyxeiqsuuq0aapwn.lambda-url.ap-southeast-1.on.aws/", {
-                            method: 'POST',
-                            redirect: 'follow'
-                        })
-
-                        if (req.onProgress) {
-                            const sec = 3
-
-                            for (let index = 0; index < sec; index++) {
-                                await new Promise(r => setTimeout(r, 1000))
-                                const perc = ((index + 1) / sec) * 100
-                                req.onProgress({ percent: perc })
-                            }
-                        }
-
-                        if (response !== null) {
-                            if (req.onSuccess) {
-                                req.onSuccess(response)
-                            }
-                        }
-                    })()
-                }}
-                listType="picture-card"
-                fileList={fileList}
-                onPreview={handlePreview}
-                onChange={handleChange}
-                maxCount={1}
-                capture="environment"
-                accept='.jpg,.png'
-            >
-                {fileList.length > 0 ? null : uploadButton}
-            </Upload>
-            <Modal open={previewOpen} title={previewTitle} footer={null} onCancel={handleCancel}>
-                <img alt="example" style={{ width: '100%' }} src={previewImage} />
-            </Modal>
+            <div>
+                <Upload
+                    action={'https://wmiagzc77tdg4q3isyxeiqsuuq0aapwn.lambda-url.ap-southeast-1.on.aws/'}
+                    listType="picture-card"
+                    fileList={fileList}
+                    onPreview={handlePreview}
+                    onChange={handleChange}
+                    maxCount={1}
+                    capture="environment"
+                    accept='.jpg,.png,video/*'
+                >
+                    {fileList.length > 0 ? null : uploadButton}
+                </Upload>
+                <Modal open={previewOpen} title={previewTitle} footer={null} onCancel={handleCancel}>
+                    <img alt="example" style={{ width: '100%' }} src={previewImage} />
+                </Modal>
+            </div>
         </>
     );
 };
