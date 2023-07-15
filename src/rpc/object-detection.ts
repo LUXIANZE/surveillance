@@ -9,18 +9,3 @@ export const detectObject = async (url: string) => {
         }
     })
 }
-
-// var myHeaders = new Headers();
-// myHeaders.append("password", "test1234");
-// myHeaders.append("Content-Type", "application/json");
-
-// var raw = JSON.stringify({
-//     "url": url
-// });
-
-// return fetch("https://pjei7pmfc1.execute-api.us-east-1.amazonaws.com/dev/detect-object", {
-//     method: 'POST',
-//     headers: myHeaders,
-//     body: raw,
-//     redirect: 'follow'
-// })

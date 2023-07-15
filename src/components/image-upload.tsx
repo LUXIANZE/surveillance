@@ -32,7 +32,6 @@ export const ImageUpload: React.FC<{ setUrl: (url: string) => void }> = (props) 
     };
 
     const handleChange: UploadProps['onChange'] = ({ fileList: newFileList }) => {
-        console.log(newFileList)
         setUrl(newFileList[0]?.response?.url)
         setFileList(newFileList);
     }
