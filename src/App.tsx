@@ -15,28 +15,47 @@ const AppWithConfig: React.FC = () => <>
 const App: React.FC = () => {
   const [url, setUrl] = useState<string>()
   const [isSubmitButtonLoading, setIsSubmitButtonLoading] = useState(false)
+  const [selectedRule, setSelectedRule] = useState<number>()
   const { token } = theme.useToken()
   const locationState = useGeolocation()
   const [messageApi, contextHolder] = message.useMessage()
 
-  const onSubmitClicked = async () => {
-    setIsSubmitButtonLoading(true)
-    const reportingItem = {
-      url: url,
-      location: locationState,
-      timeStamp: new Date().toUTCString()
+  const validateData = () => {
+    if (!url) {
+      throw new Error("Image not selected or corrupted, please re-capture image");
     }
 
-    console.table(reportingItem)
+    if (!selectedRule) {
+      throw new Error("Rule not selected, please select UAUC rule you would like to report");
+    }
+  }
 
-    // hardcode loading
-    await new Promise(r => setTimeout(r, 1000))
-    setIsSubmitButtonLoading(false)
+  const onSubmitClicked = async () => {
 
-    // toast for 2 seconds then reload
-    messageApi.success('Successfully Submitted Report', 2)
-    await new Promise(r => setTimeout(r, 2000))
-    // window.location.reload()
+    try {
+      setIsSubmitButtonLoading(true)
+      validateData()
+      const reportingItem = {
+        url: url,
+        location: locationState,
+        timeStamp: new Date().toUTCString()
+      }
+
+      console.table(reportingItem)
+
+      // hardcode loading
+      await new Promise(r => setTimeout(r, 1000))
+
+      // toast for 2 seconds then reload
+      messageApi.success('Successfully Submitted Report', 2)
+      await new Promise(r => setTimeout(r, 2000))
+      // window.location.reload()
+    } catch (error) {
+      messageApi.error((error as Error).message, 3)
+    } finally {
+      setIsSubmitButtonLoading(false)
+    }
+
   }
 
   return <>
@@ -59,7 +78,7 @@ const App: React.FC = () => {
           </Row>
           <Row>
             <Col span={24}>
-              <SelectUAUC url={url} />
+              <SelectUAUC url={url} setSelectedRule={setSelectedRule} />
             </Col>
           </Row>
           <Divider />

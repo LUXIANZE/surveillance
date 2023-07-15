@@ -2,31 +2,41 @@ import { Select } from "antd"
 import { useState } from "react";
 import { uaucSearch } from "../rpc/uauc-search";
 
-export const SelectUAUC: React.FC<{ url?: string }> = (props) => {
-    const { url } = props
+export const SelectUAUC: React.FC<{
+    url?: string,
+    setSelectedRule: (ruleId: number) => void
+}> = (props) => {
+    const { url, setSelectedRule } = props
     const [selected, setSelected] = useState<string>()
+    const mapRuleToOptions = (rule: { id: number, rule: string }) => ({ value: rule.id, label: rule.rule })
     const defaultOptions = [
         {
-            value: 'ladder',
-            label: 'Faulty ladder',
+            id: 10,
+            rule: 'Faulty ladder',
         },
         {
-            value: 'phone',
-            label: 'Holding phone while walking',
+            id: 11,
+            rule: 'Holding phone while walking',
         },
         {
-            value: 'waste-bin',
-            label: 'Left waste bin in the hallway',
+            id: 12,
+            rule: 'Left waste bin in the hallway',
         },
         {
-            value: 'fire',
-            label: 'Fire',
+            id: 13,
+            rule: 'Fire',
         },
     ]
-    const [options, setOptions] = useState(defaultOptions)
+    const [options, setOptions] = useState(defaultOptions.map(mapRuleToOptions))
 
-    const onChange = (value: string) => {
+    const onChange = (value: string, option: {
+        value: number;
+        label: string;
+    } | { value: number; label: string; }[]) => {
         setSelected(value)
+        if (!Array.isArray(option)) {
+            setSelectedRule(option.value)
+        }
     };
 
     const onSearch = async (value: string) => {
@@ -39,11 +49,11 @@ export const SelectUAUC: React.FC<{ url?: string }> = (props) => {
                 }
             } else {
                 console.log('url:', url);
-                setOptions(defaultOptions)
+                setOptions(defaultOptions.map(mapRuleToOptions))
             }
         } catch (error) {
             console.error(error)
-            setOptions(defaultOptions)
+            setOptions(defaultOptions.map(mapRuleToOptions))
         }
     };
 
