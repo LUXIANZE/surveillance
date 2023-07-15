@@ -1,4 +1,4 @@
-import { Button, Col, ConfigProvider, Divider, Layout, Row, Typography, message, theme } from 'antd';
+import { Button, Col, ConfigProvider, Divider, Image, Layout, Modal, Row, Typography, message, theme } from 'antd';
 import React, { useState } from 'react';
 import { useGeolocation } from 'react-use'
 import { ImageUpload } from './components/image-upload';
@@ -17,8 +17,13 @@ const App: React.FC = () => {
   const [isSubmitButtonLoading, setIsSubmitButtonLoading] = useState(false)
   const [selectedRule, setSelectedRule] = useState<number>()
   const { token } = theme.useToken()
+  const [modal, modalContextHolder] = Modal.useModal();
   const locationState = useGeolocation()
-  const [messageApi, contextHolder] = message.useMessage()
+  const defaultLongitudeLatitude = {
+    latitude: 3.0670848,
+    longitude: 101.4267904
+  }
+  const [messageApi, messageContextHolder] = message.useMessage()
 
   const validateData = () => {
     if (!url) {
@@ -45,9 +50,29 @@ const App: React.FC = () => {
 
       // hardcode loading
       await new Promise(r => setTimeout(r, 1000))
-
-      // toast for 2 seconds then reload
-      messageApi.success('Successfully Submitted Report', 2)
+      modal.success({
+        title: 'Submission Success',
+        content: <>
+          <Row>
+            <Col span={8}>Evidence</Col>
+            <Col span={16}><Image src={url} style={{ maxHeight: 500 }} /></Col>
+          </Row>
+          <Divider />
+          <Row>
+            <Col span={8}>Longitude</Col>
+            <Col span={16}>{locationState.longitude || defaultLongitudeLatitude.longitude}</Col>
+          </Row>
+          <Row>
+            <Col span={8}>Latitude</Col>
+            <Col span={16}>{locationState.latitude || defaultLongitudeLatitude.latitude}</Col>
+          </Row>
+          <Divider />
+          <Row>
+            <Col span={8}>Time of incident</Col>
+            <Col span={16}>{new Date().toLocaleString()}</Col>
+          </Row>
+        </>,
+      })
       await new Promise(r => setTimeout(r, 2000))
       // window.location.reload()
     } catch (error) {
@@ -59,12 +84,13 @@ const App: React.FC = () => {
   }
 
   return <>
-    {contextHolder}
+    {messageContextHolder}
+    {modalContextHolder}
     <div className="App">
       <Layout>
         <Header style={{ display: 'flex', alignItems: 'center', backgroundColor: token.colorPrimary }}>
           <Typography.Title level={3} style={{ color: '#ffffff' }}>
-            <SettingOutlined spin />
+            <SettingOutlined />
             {'\tFile an incident'}
           </Typography.Title>
         </Header>
