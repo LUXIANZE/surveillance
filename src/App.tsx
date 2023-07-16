@@ -84,13 +84,6 @@ const App: React.FC = () => {
 
   }
 
-  const onGetSuggestedClicked = async () => {
-    const res = await suggestUAUC()
-    if (res && res.status === 200) {
-      console.log(res.data)
-    }
-  }
-
   return <>
     {messageContextHolder}
     {modalContextHolder}
@@ -126,7 +119,6 @@ const App: React.FC = () => {
           <Row>
             <Col span={24}>
               {/* <Detection /> */}
-              <Button onClick={onGetSuggestedClicked}>Get suggestion</Button>
             </Col>
           </Row>
         </Content>
