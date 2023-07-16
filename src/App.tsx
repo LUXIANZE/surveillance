@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useGeolocation } from 'react-use'
 import { ImageUpload } from './components/image-upload';
 import { SelectUAUC } from './components/select-uauc';
-import { Content, Header } from 'antd/es/layout/layout';
+import { Content, Footer, Header } from 'antd/es/layout/layout';
 import { SettingOutlined } from '@ant-design/icons';
 import { submitReport } from './components/submit-report';
 import { GetLocation } from './components/get-address';
@@ -77,7 +77,7 @@ const App: React.FC = () => {
           </Row>
           <Row>
             <Col span={8}>Address</Col>
-            <Col span={16}>{`office: ${location.office}, level: ${location.level}, office: ${location.room}`}</Col>
+            <Col span={16}>{`office: ${location.office}, level: ${location.level}, room: ${location.room}`}</Col>
           </Row>
           <Divider />
           <Row>
@@ -85,8 +85,11 @@ const App: React.FC = () => {
             <Col span={16}>{new Date().toLocaleString()}</Col>
           </Row>
         </>,
+        afterClose: async () => {
+          await new Promise(r => setTimeout(r, 1000))
+          window.location.reload()
+        }
       })
-      await new Promise(r => setTimeout(r, 2000))
       // window.location.reload()
     } catch (error) {
       messageApi.error((error as Error).message, 3)
@@ -113,7 +116,7 @@ const App: React.FC = () => {
             {'\tFile an incident'}
           </Typography.Title>
         </Header>
-        <Content style={{ padding: 20 }}>
+        <Content style={{ minHeight: 600, padding: 20 }}>
           <Row>
             <Col span={8}></Col>
             <Col span={8}>
@@ -150,6 +153,13 @@ const App: React.FC = () => {
             </Col>
           </Row>
         </Content>
+        <Footer>
+          <Row>
+            <Col span={6}><Image src='https://www.petronas.com/pcg/sites/default/files/lightbox-gallery/cover/gallery-pet-logo-inner-thumb.jpg' /></Col>
+            <Col span={1}></Col>
+            <Col span={17} ><span>Passionate About Progress</span></Col>
+          </Row>
+        </Footer>
       </Layout>
     </div>
   </>

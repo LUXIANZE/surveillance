@@ -132,7 +132,7 @@ export const ImageUpload: React.FC<{ setUrl: (url: string) => void }> = (props) 
                         onChange={handleChange}
                         maxCount={1}
                         capture="environment"
-                        accept='.jpg,.png,video/*'
+                        accept='.jpg,video/*'
                     >
                         {fileList.length > 0 ? null : uploadButton}
                     </AntUpload>

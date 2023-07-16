@@ -1,5 +1,18 @@
 import { AxiosResponse, AxiosResponseHeaders, InternalAxiosRequestConfig } from "axios"
 
+export interface UAUC {
+    category: string,
+    subCategory: string,
+    rules: string,
+    hazardLevel: number
+}
+
+const UAUC_SAMPLE: UAUC[] = [{
+    category: 'electrical hazard',
+    subCategory: 'exposed electric cables',
+    rules: 'Wire cables are exposed without any caution sign',
+    hazardLevel: 2
+}]
 
 export const uaucSearch = async (searchText: string) => {
     const mocks = [{

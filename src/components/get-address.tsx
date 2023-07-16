@@ -1,5 +1,5 @@
 import { Html5QrcodeScanner } from "html5-qrcode";
-import { Button, message } from 'antd';
+import { Button } from 'antd';
 import React from 'react';
 
 export const GetLocation: React.FC<{ location: any, setLocation: (loc: any) => void }> = (props) => {
