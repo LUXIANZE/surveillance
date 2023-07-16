@@ -3,21 +3,12 @@ import { PlusOutlined } from '@ant-design/icons';
 import { Modal, Upload as AntUpload, message } from 'antd';
 import type { RcFile, UploadProps } from 'antd/es/upload';
 import type { UploadFile } from 'antd/es/upload/interface';
-import { Uploader } from "uploader";
 import { Upload } from 'upload-js'
 
 const getBase64 = (file: RcFile): Promise<string> =>
     new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = (error) => reject(error);
-    });
-
-const getBinaryString = (file: RcFile): Promise<string> =>
-    new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsBinaryString(file);
         reader.onload = () => resolve(reader.result as string);
         reader.onerror = (error) => reject(error);
     });
@@ -29,7 +20,6 @@ export const ImageUpload: React.FC<{ setUrl: (url: string) => void }> = (props) 
     const [previewTitle, setPreviewTitle] = useState('');
     const [fileList, setFileList] = useState<UploadFile[]>([]);
     const handleCancel = () => setPreviewOpen(false);
-    const uploader = Uploader({ apiKey: "public_kW15bWw6nYmW19eM6J5GW7VRwmAk" }); // Your real API key.
 
     const handlePreview = async (file: UploadFile) => {
         if (!file.url && !file.preview) {
@@ -108,19 +98,34 @@ export const ImageUpload: React.FC<{ setUrl: (url: string) => void }> = (props) 
                     <AntUpload
                         action={'https://wmiagzc77tdg4q3isyxeiqsuuq0aapwn.lambda-url.ap-southeast-1.on.aws/'}
                         customRequest={(req) => {
+                            let success: any = null;
+
+                            Promise.all([(async () => {
+                                if (req.onProgress) {
+                                    const sec = 5
+
+                                    for (let index = 0; index < sec; index++) {
+                                        await new Promise(r => setTimeout(r, 1000))
+                                        const perc = ((index + 1) / sec) * 100
+                                        req.onProgress({ percent: perc })
+                                    }
+                                }
+                            })(),
                             (async () => {
                                 const uploadedFile = await onFileSelected(req)
-                                if (req.onSuccess) {
-                                    req.onSuccess({
-                                        status: 'done',
-                                        name: uploadedFile?.originalFileName,
-                                        url: uploadedFile?.fileUrl
-                                    })
+                                success = {
+                                    status: 'done',
+                                    name: uploadedFile?.originalFileName,
+                                    url: uploadedFile?.fileUrl
                                 }
                             })()
+                            ]).then(() => {
+                                if (req.onSuccess) {
+                                    req.onSuccess(success)
+                                }
+                            })
                         }
                         }
-                        // action={'https://70mage2swh.execute-api.ap-southeast-1.amazonaws.com/Stage/uploadimage/'}
                         listType="picture-card"
                         fileList={fileList}
                         onPreview={handlePreview}

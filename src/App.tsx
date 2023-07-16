@@ -1,11 +1,12 @@
 import { Button, Col, ConfigProvider, Divider, Image, Layout, Modal, Row, Typography, message, theme } from 'antd';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useGeolocation } from 'react-use'
 import { ImageUpload } from './components/image-upload';
 import { SelectUAUC } from './components/select-uauc';
 import { Content, Header } from 'antd/es/layout/layout';
 import { SettingOutlined } from '@ant-design/icons';
-import { suggestUAUC } from './rpc/suggested-uauc';
+import { submitReport } from './components/submit-report';
+import { GetLocation } from './components/get-address';
 
 const AppWithConfig: React.FC = () => <>
   <ConfigProvider theme={{ token: { colorPrimary: '#639696' } }}>
@@ -16,7 +17,8 @@ const AppWithConfig: React.FC = () => <>
 const App: React.FC = () => {
   const [url, setUrl] = useState<string>()
   const [isSubmitButtonLoading, setIsSubmitButtonLoading] = useState(false)
-  const [selectedRule, setSelectedRule] = useState<number>()
+  const [selectedRule, setSelectedRule] = useState<string>()
+  const [location, setLocation] = useState<any>() // {office: number, level: number, room: number}
   const { token } = theme.useToken()
   const [modal, modalContextHolder] = Modal.useModal()
   const locationState = useGeolocation()
@@ -33,6 +35,10 @@ const App: React.FC = () => {
 
     if (!selectedRule) {
       throw new Error("Rule not selected, please select UAUC rule you would like to report");
+    }
+
+    if (!location) {
+      throw new Error("Please Scan Address QR Code Nearby you");
     }
   }
 
@@ -51,6 +57,8 @@ const App: React.FC = () => {
 
       // hardcode loading
       await new Promise(r => setTimeout(r, 1000))
+      // TODO: Implement submit report
+      // await submitReport()
       modal.success({
         title: 'Submission Success',
         content: <>
@@ -66,6 +74,10 @@ const App: React.FC = () => {
           <Row>
             <Col span={8}>Latitude</Col>
             <Col span={16}>{locationState.latitude || defaultLongitudeLatitude.latitude}</Col>
+          </Row>
+          <Row>
+            <Col span={8}>Address</Col>
+            <Col span={16}>{`office: ${location.office}, level: ${location.level}, office: ${location.room}`}</Col>
           </Row>
           <Divider />
           <Row>
@@ -84,6 +96,12 @@ const App: React.FC = () => {
 
   }
 
+  useEffect(() => {
+    if (location) {
+      message.info(`You're at office: ${location.office}, level: ${location.level}, office: ${location.room}`)
+    }
+  }, [location])
+
   return <>
     {messageContextHolder}
     {modalContextHolder}
@@ -95,7 +113,7 @@ const App: React.FC = () => {
             {'\tFile an incident'}
           </Typography.Title>
         </Header>
-        <Content style={{ minHeight: 700, padding: 20 }}>
+        <Content style={{ padding: 20 }}>
           <Row>
             <Col span={8}></Col>
             <Col span={8}>
@@ -111,6 +129,17 @@ const App: React.FC = () => {
           <Divider />
           <Row>
             <Col span={24}>
+              <div id="qrreader"></div>
+            </Col>
+          </Row>
+          <Row>
+            <Col span={24}>
+              <GetLocation location={location} setLocation={setLocation} />
+            </Col>
+          </Row>
+          <Divider />
+          <Row>
+            <Col span={24}>
               <Button onClick={onSubmitClicked} type='primary' style={{ width: '100%' }} loading={isSubmitButtonLoading}>
                 Submit Report
               </Button>
@@ -118,7 +147,6 @@ const App: React.FC = () => {
           </Row>
           <Row>
             <Col span={24}>
-              {/* <Detection /> */}
             </Col>
           </Row>
         </Content>
