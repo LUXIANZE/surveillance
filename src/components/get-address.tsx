@@ -21,7 +21,6 @@ export const GetLocation: React.FC<{ location: any, setLocation: (loc: any) => v
 
     function onScanFailure(error: any) {
         console.warn(`Code scan error = ${error}`);
-        message.error(error)
     }
 
     return (
