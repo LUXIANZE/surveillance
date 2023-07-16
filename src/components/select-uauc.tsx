@@ -13,12 +13,12 @@ export const SelectUAUC: React.FC<{
     setSelectedRule: (ruleId?: string) => void
 }> = (props) => {
     const { url, setSelectedRule } = props
-    let suggestedOptions: { value: any, label: string }[] = []
+    const [suggestedOptions, setSuggestedOptions] = useState<{ value: any, label: string }[]>()
     const [selected, setSelected] = useState<string>()
     const [loading, setLoading] = useState<boolean>(false)
     const [options, setOptions] = useState<{ value: any, label: string }[]>()
 
-    const mapSuggestionToOption = (rule: { id: number, rule: string }) => ({ value: rule.id, label: rule.rule })
+    const mapSuggestionToOption = (rule: any) => ({ value: rule.id, label: rule.rule })
 
     const presetSelectedAndSuggestion = (list: SuggestionListDTO) => {
         setSelected(list.best_choice[0])
@@ -28,7 +28,7 @@ export const SelectUAUC: React.FC<{
                 label: `${elem[0]} [${elem[1]}%]`
             }
         })
-        suggestedOptions = tempOptions
+        setSuggestedOptions(tempOptions)
         setOptions(tempOptions)
     }
 
@@ -86,6 +86,14 @@ export const SelectUAUC: React.FC<{
         }
     };
 
+    const selectShowLoading = () => {
+        const optionsAreEmpty = !!!options
+        const imageUrlAvailable = !!url
+        const gettingSuggestion = loading
+
+        return optionsAreEmpty || (imageUrlAvailable && gettingSuggestion)
+    }
+
     return <Select
         disabled={!url && !loading}
         style={{ width: '100%' }}
@@ -96,5 +104,6 @@ export const SelectUAUC: React.FC<{
         onSearch={onSearch}
         filterOption={false}
         options={options}
+        loading={selectShowLoading()}
     />
 }

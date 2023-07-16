@@ -105,6 +105,12 @@ const App: React.FC = () => {
     }
   }, [location])
 
+  useEffect(() => {
+    window.process = {
+      ...window.process,
+    };
+  }, []);
+
   return <>
     {messageContextHolder}
     {modalContextHolder}
