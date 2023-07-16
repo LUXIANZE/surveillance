@@ -1,5 +1,5 @@
 import { Html5QrcodeScanner } from "html5-qrcode";
-import { Button } from 'antd';
+import { Button, message } from 'antd';
 import React from 'react';
 
 export const GetLocation: React.FC<{ location: any, setLocation: (loc: any) => void }> = (props) => {
@@ -21,6 +21,7 @@ export const GetLocation: React.FC<{ location: any, setLocation: (loc: any) => v
 
     function onScanFailure(error: any) {
         console.warn(`Code scan error = ${error}`);
+        message.error(error)
     }
 
     return (
