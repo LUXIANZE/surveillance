@@ -5,6 +5,7 @@ import { ImageUpload } from './components/image-upload';
 import { SelectUAUC } from './components/select-uauc';
 import { Content, Header } from 'antd/es/layout/layout';
 import { SettingOutlined } from '@ant-design/icons';
+import { suggestUAUC } from './rpc/suggested-uauc';
 
 const AppWithConfig: React.FC = () => <>
   <ConfigProvider theme={{ token: { colorPrimary: '#639696' } }}>
@@ -17,7 +18,7 @@ const App: React.FC = () => {
   const [isSubmitButtonLoading, setIsSubmitButtonLoading] = useState(false)
   const [selectedRule, setSelectedRule] = useState<number>()
   const { token } = theme.useToken()
-  const [modal, modalContextHolder] = Modal.useModal();
+  const [modal, modalContextHolder] = Modal.useModal()
   const locationState = useGeolocation()
   const defaultLongitudeLatitude = {
     latitude: 3.0670848,
@@ -83,6 +84,13 @@ const App: React.FC = () => {
 
   }
 
+  const onGetSuggestedClicked = async () => {
+    const res = await suggestUAUC()
+    if (res && res.status === 200) {
+      console.log(res.data)
+    }
+  }
+
   return <>
     {messageContextHolder}
     {modalContextHolder}
@@ -115,11 +123,12 @@ const App: React.FC = () => {
               </Button>
             </Col>
           </Row>
-          {/* <Row>
+          <Row>
             <Col span={24}>
-              <Detection />
+              {/* <Detection /> */}
+              <Button onClick={onGetSuggestedClicked}>Get suggestion</Button>
             </Col>
-          </Row> */}
+          </Row>
         </Content>
       </Layout>
     </div>
