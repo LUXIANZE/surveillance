@@ -68,7 +68,6 @@ export const SelectUAUC: React.FC<{
 
     const onSearch = async (value: string) => {
         try {
-            setLoading(true)
             if (Boolean(value)) {
                 const res = await uaucSearch(value)
                 if (res && res.status === 200) {
@@ -81,21 +80,11 @@ export const SelectUAUC: React.FC<{
         } catch (error) {
             console.error(error)
             setOptions(suggestedOptions)
-        } finally {
-            setLoading(false)
         }
     };
 
-    const selectShowLoading = () => {
-        const optionsAreEmpty = !!!options
-        const imageUrlAvailable = !!url
-        const gettingSuggestion = loading
-
-        return optionsAreEmpty || (imageUrlAvailable && gettingSuggestion)
-    }
-
     return <Select
-        disabled={!url && !loading}
+        disabled={!Boolean(url) || (Boolean(url) && loading)}
         style={{ width: '100%' }}
         showSearch
         value={url && selected}
@@ -104,6 +93,6 @@ export const SelectUAUC: React.FC<{
         onSearch={onSearch}
         filterOption={false}
         options={options}
-        loading={selectShowLoading()}
+        loading={loading}
     />
 }

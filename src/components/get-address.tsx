@@ -9,7 +9,7 @@ export const GetLocation: React.FC<{ location: any, setLocation: (loc: any) => v
         html5QrcodeScanner = new Html5QrcodeScanner(
             "qrreader",
             { fps: 10, qrbox: { width: 250, height: 250 } },
-      /* verbose= */ false);
+            false);
         html5QrcodeScanner.render(onScanSuccess, onScanFailure);
     };
 

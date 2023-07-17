@@ -1,12 +1,11 @@
 import { Button, Col, ConfigProvider, Divider, Image, Layout, Modal, Row, Typography, message, theme } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { useGeolocation } from 'react-use'
 import { ImageUpload } from './components/image-upload';
 import { SelectUAUC } from './components/select-uauc';
 import { Content, Footer, Header } from 'antd/es/layout/layout';
 import { SettingOutlined } from '@ant-design/icons';
-import { submitReport } from './components/submit-report';
 import { GetLocation } from './components/get-address';
+import { SubmissionModal } from './components/submission-modal';
 
 const AppWithConfig: React.FC = () => <>
   <ConfigProvider theme={{ token: { colorPrimary: '#639696' } }}>
@@ -21,11 +20,9 @@ const App: React.FC = () => {
   const [location, setLocation] = useState<any>() // {office: number, level: number, room: number}
   const { token } = theme.useToken()
   const [modal, modalContextHolder] = Modal.useModal()
-  const locationState = useGeolocation()
-  const defaultLongitudeLatitude = {
-    latitude: 3.0670848,
-    longitude: 101.4267904
-  }
+  const [submissionReady, setSubmissionReady] = useState(false)
+
+
   const [messageApi, messageContextHolder] = message.useMessage()
 
   const validateData = () => {
@@ -47,13 +44,7 @@ const App: React.FC = () => {
     try {
       setIsSubmitButtonLoading(true)
       validateData()
-      const reportingItem = {
-        url: url,
-        location: locationState,
-        timeStamp: new Date().toUTCString()
-      }
 
-      console.table(reportingItem)
 
       // hardcode loading
       await new Promise(r => setTimeout(r, 1000))
@@ -62,35 +53,19 @@ const App: React.FC = () => {
       modal.success({
         title: 'Submission Success',
         content: <>
-          <Row>
-            <Col span={8}>Evidence</Col>
-            <Col span={16}><Image src={url} style={{ maxHeight: 500 }} /></Col>
-          </Row>
-          <Divider />
-          <Row>
-            <Col span={8}>Longitude</Col>
-            <Col span={16}>{locationState.longitude || defaultLongitudeLatitude.longitude}</Col>
-          </Row>
-          <Row>
-            <Col span={8}>Latitude</Col>
-            <Col span={16}>{locationState.latitude || defaultLongitudeLatitude.latitude}</Col>
-          </Row>
-          <Row>
-            <Col span={8}>Address</Col>
-            <Col span={16}>{`office: ${location.office}, level: ${location.level}, room: ${location.room}`}</Col>
-          </Row>
-          <Divider />
-          <Row>
-            <Col span={8}>Time of incident</Col>
-            <Col span={16}>{new Date().toLocaleString()}</Col>
-          </Row>
+          <SubmissionModal
+            url={url}
+            location={location}
+            onLocationStateChange={locationState => console.log('Location Changed >>: ', locationState)}
+            onSubmissionReady={setSubmissionReady}
+          />
         </>,
         afterClose: async () => {
           await new Promise(r => setTimeout(r, 1000))
           window.location.reload()
         }
       })
-      // window.location.reload()
+
     } catch (error) {
       messageApi.error((error as Error).message, 3)
     } finally {
@@ -101,15 +76,9 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (location) {
-      message.info(`You're at office: ${location.office}, level: ${location.level}, office: ${location.room}`)
+      message.info(`You're at office: ${location.office}, level: ${location.level}, room: ${location.room}`)
     }
   }, [location])
-
-  useEffect(() => {
-    window.process = {
-      ...window.process,
-    };
-  }, []);
 
   return <>
     {messageContextHolder}
